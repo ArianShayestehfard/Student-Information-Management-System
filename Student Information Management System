@@ -1,0 +1,235 @@
+#include <stdio.h>
+#include <string.h>
+
+// The structs for the program
+struct Student {
+    char name[50];
+    char sur_name[100];
+    char gender[10];
+    int Birth_year;
+    int Birth_month;
+    int Birth_day;
+    int student_id;
+};
+
+struct Grade {
+    char course_name[50];
+    float grade_GPA;
+};
+
+int student_count = 0;  // Initialize student_count
+
+// Function for adding students
+void enter_students_information(struct Student* info, struct Grade* grade2, int* student_count, const char* filename) {
+    FILE* file = fopen(filename, "ab");  
+    if (file == NULL) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
+
+    // Write student and grade info to the file
+    for (int i = 0; i < *student_count; ++i) {
+        fwrite(&info[i], sizeof(struct Student), 1, file);
+        fwrite(&grade2[i], sizeof(struct Grade), 1, file);
+    }
+
+    fclose(file);
+}
+
+// Function for editing student info
+void edit_student_information(struct Student* info, struct Grade* grade2, int student_count) {
+    int student_id;
+    printf("Enter student ID to edit: ");
+    scanf("%d", &student_id);
+
+   int y ;
+    printf("\n Please select what you want to edit\n");
+    printf("Edit Student Name and Sur name : (1)\n");
+    printf("Edit Gender : (2)\n");
+    printf("Edit Birth Date : (3)\n");
+    printf("Edit Course grade : (4)\n");
+    printf("Exit : (5) \n\n");
+
+    scanf("%d", &y );
+
+    // Find and edit the students info
+    for (int i = 0; i < student_count; ++i) {
+
+        switch (y){
+
+        case 1:
+        if (info[i].student_id == student_id) {
+            printf("Editing information for student %d\n", student_id);
+            printf("New Student Name: ");
+            scanf("%s", info[i].name);
+            printf("New Sur Name: ");
+            scanf("%s", info[i].sur_name);
+
+            break;
+        }
+        case 2:
+        if (info[i].student_id == student_id){
+            printf("Editing information for student %d\n", student_id);
+            scanf("%s", info[i].gender);
+            printf("New Birth Year: ");
+
+            break;
+        }
+
+        case 3:
+        if (info[i].student_id == student_id){
+            printf("Editing information for student %d\n", student_id);
+            printf("New Birth Year: ");
+            scanf("%d", &info[i].Birth_year);
+            printf("New Birth Month: ");
+            scanf("%d", &info[i].Birth_month);
+            printf("New Birth Day: ");
+            scanf("%d", &info[i].Birth_day);
+
+            break;
+        }
+
+        case 4:
+        if (info[i].student_id == student_id){
+
+            char course_name[50];
+            printf("Enter Course Name\n");
+            scanf("%s",course_name);
+
+            if ((strcmp(grade2[i].course_name, course_name))==0){
+             printf("Editing information for student %d\n", student_id);
+             printf("New GPA: ");
+             scanf("%f", &grade2[i].grade_GPA);}
+            else {
+                printf("Course %s not found", course_name);
+            }
+            break;
+        }
+
+        default:
+        break;
+      }
+    }
+}
+
+// Function for deleting students info
+void delete_student_information(struct Student* info, struct Grade* grade2, int* student_count) {
+    int student_id;
+    printf("Enter student ID to delete: ");
+    scanf("%d", &student_id);
+
+    for (int i = 0; i < *student_count; ++i) {
+        if (info[i].student_id == student_id) {
+            
+            for (int j = i; j < *student_count - 1; ++j) {
+                info[j] = info[j + 1];
+                grade2[j] = grade2[j + 1];
+            }
+            (*student_count)--;  // Decrease the student count
+            printf("Student information deleted.\n");
+            break;
+        }
+    }
+}
+
+// Function for reading student info from file
+void read_student_info_from_file(struct Student* info, struct Grade* grade2, int* student_count, const char* filename) {
+    FILE* file = fopen(filename, "rb");  // Open file for reading
+    if (file == NULL) {
+        printf("Error opening file for reading.\n");
+        return;
+    }
+
+    // Read data until the end of the file
+    while (fread(&info[*student_count], sizeof(struct Student), 1, file) == 1) {
+        fread(&grade2[*student_count], sizeof(struct Grade), 1, file);
+        (*student_count)++;
+    }
+
+    fclose(file);
+}
+
+int main() {
+    const char* filename =  "C code";  // Define the file name
+
+    // let user to enter number of students
+    printf("Enter number of students: ");
+    scanf("%d", &student_count);
+
+    struct Student info[student_count];
+    struct Grade grade2[student_count];
+
+    int x;
+
+    printf("\nPlease select one of the options below: \n\n");
+    printf("Enter Student information :(1)\n");
+    printf("Edit Student information :(2)\n");
+    printf("Delete Students information :(3)\n");
+    printf("Show Student information:(4)\n");
+    printf("Exit :(5)\n\n");
+
+    scanf("%d", &x);
+    
+    while (x != 5) { 
+        
+        switch (x) {
+        case 1:
+            for (int i = 0; i < student_count; ++i) {
+                printf("Student's Name: ");
+                scanf("%s", info[i].name);
+                printf("Sur Name: ");
+                scanf("%s", info[i].sur_name);
+                printf("Gender: ");
+                scanf("%s", info[i].gender);
+                printf("Birth year: ");
+                scanf("%d", &info[i].Birth_year);
+                printf("Birth Month: ");
+                scanf("%d", &info[i].Birth_month);
+
+                printf("Birth Day: ");
+                scanf("%d", &info[i].Birth_day);
+
+                printf("Student ID: ");
+                scanf("%d", &info[i].student_id);
+
+                printf("Enter course name: ");
+                scanf("%s", grade2[i].course_name);
+                printf("Enter course GPA: ");
+                scanf("%f", &grade2[i].grade_GPA);
+            }
+            enter_students_information(info, grade2, &student_count, filename);
+            printf("Student information entered\n");
+            break;
+
+        case 2:
+            edit_student_information(info, grade2, student_count);
+            printf("Student information edited\n");
+            break;
+
+        case 3:
+            delete_student_information(info, grade2, &student_count);
+            printf("Student information deleted\n");
+            break;
+
+        case 4: 
+            read_student_info_from_file(info, grade2, &student_count, filename);
+            printf("Student information shown\n");
+            break;
+
+        default:
+            break;
+        }
+        printf("\nPlease select one of the options below: \n\n");
+        printf("Enter Student information :(1)\n");
+        printf("Edit Student information :(2)\n");
+        printf("Delete Students information :(3)\n");
+        printf("Show Student information:(4)\n");
+        printf("Exit :(5)\n\n");
+        scanf("%d", &x);
+    }
+
+    // Send student information to file to save after changes
+    enter_students_information(info, grade2, &student_count, filename);
+
+    return 0;
+}
